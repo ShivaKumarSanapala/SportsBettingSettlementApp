@@ -1,0 +1,146 @@
+{
+    "info": {
+        "name": "Sports Betting Settlement API",
+        "description": "API collection for testing the Sports Betting Settlement Service",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Bets",
+            "item": [
+                {
+                    "name": "Get All Bets",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/bets",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "bets"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Bet by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/bets/1",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "bets", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Bets by User ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/bets/user/user123",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "bets", "user", "user123"]
+                        }
+                    }
+                },
+                {
+                    "name": "Create New Bet",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"userId\": \"user999\",\n    \"eventId\": \"event004\",\n    \"eventMarketId\": \"market001\",\n    \"eventWinnerId\": \"teamAlpha\",\n    \"betAmount\": 500.00\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/bets",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "bets"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Event Outcomes",
+            "item": [
+                {
+                    "name": "Publish Event Outcome - Team1 Wins",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"eventId\": \"event001\",\n    \"eventName\": \"Team A vs Team B - Championship Final\",\n    \"eventWinnerId\": \"team1\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/events/outcomes",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "events", "outcomes"]
+                        }
+                    }
+                },
+                {
+                    "name": "Publish Event Outcome - Team2 Wins",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"eventId\": \"event002\",\n    \"eventName\": \"Team C vs Team D - League Match\",\n    \"eventWinnerId\": \"teamB\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/events/outcomes",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "events", "outcomes"]
+                        }
+                    }
+                },
+                {
+                    "name": "Publish Event Outcome - New Event",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"eventId\": \"event004\",\n    \"eventName\": \"Team Alpha vs Team Beta - Cup Final\",\n    \"eventWinnerId\": \"teamAlpha\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/events/outcomes",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "events", "outcomes"]
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8080",
+            "type": "string"
+        }
+    ]
+}

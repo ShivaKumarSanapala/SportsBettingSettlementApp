@@ -1,0 +1,85 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: sports-betting-settlement
+  
+  # H2 Database Configuration
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true  # Allow access from other containers
+  
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false  # Reduced logging for Docker
+    properties:
+      hibernate:
+        format_sql: false
+
+  # Kafka Configuration for Docker
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+    consumer:
+      group-id: sports-betting-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.value.default.type: com.sportygroup.model.EventOutcome
+      auto-offset-reset: earliest
+
+# RocketMQ Configuration for Docker
+rocketmq:
+  name-server: ${ROCKETMQ_NAME_SERVER:rocketmq-namesrv:9876}
+  producer:
+    group: sports-betting-producer-group
+  consumer:
+    group: sports-betting-consumer-group
+
+# Application Configuration
+app:
+  kafka:
+    topics:
+      event-outcomes: event-outcomes
+  rocketmq:
+    topics:
+      bet-settlements: bet-settlements
+  mock:
+    rocketmq: ${APP_MOCK_ROCKETMQ:true}
+
+# Management endpoints for health checks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging Configuration for Docker
+logging:
+  level:
+    com.sportygroup: INFO
+    org.springframework.kafka: WARN
+    org.apache.rocketmq: WARN
+    org.springframework.web: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
