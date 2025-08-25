@@ -97,3 +97,12 @@ full-test: ## Run comprehensive API tests
 run-local: ## Run application locally with Maven
 	@echo "🏃 Running application locally..."
 	@./scripts/run.sh
+
+# RocketMQ mode switching
+start-mock: ## Start with mock RocketMQ
+	@echo "🚀 Starting with mock RocketMQ..."
+	@APP_MOCK_ROCKETMQ=true docker-compose up --build -d
+
+start-real: ## Start with real RocketMQ
+	@echo "🚀 Starting with real RocketMQ..."
+	@APP_MOCK_ROCKETMQ=false docker-compose up --build -d

@@ -5,12 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sportygroup.model.BetSettlement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
+import org.apache.rocketmq.spring.core.RocketMQListener;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
  * Service for handling bet settlements via RocketMQ
- * Uses mock implementation as suggested in assignment if RocketMQ setup is complex
+ * Supports both real RocketMQ and mock implementation
  */
 @Service
 @RequiredArgsConstructor
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 public class BetSettlementService {
     
     private final ObjectMapper objectMapper;
+    private final RocketMQTemplate rocketMQTemplate;
     
     @Value("${app.mock.rocketmq:true}")
     private boolean mockRocketMQ;
@@ -32,7 +36,6 @@ public class BetSettlementService {
         if (mockRocketMQ) {
             mockPublishBetSettlement(betSettlement);
         } else {
-            // Real RocketMQ implementation would go here
             realPublishBetSettlement(betSettlement);
         }
     }
@@ -55,42 +58,29 @@ public class BetSettlementService {
     }
     
     /**
-     * Real RocketMQ implementation (placeholder)
+     * Real RocketMQ implementation using Spring Boot RocketMQ Starter
      */
     private void realPublishBetSettlement(BetSettlement betSettlement) {
-        // Real RocketMQ producer implementation would go here
-        // Example implementation:
-        /*
         try {
-            DefaultMQProducer producer = new DefaultMQProducer("sports-betting-producer-group");
-            producer.setNamesrvAddr("localhost:9876");
-            producer.start();
+            log.info("Publishing bet settlement to RocketMQ topic '{}': {}", betSettlementsTopic, betSettlement);
             
-            Message message = new Message(
-                betSettlementsTopic,
-                "bet-settlement",
-                objectMapper.writeValueAsString(betSettlement).getBytes()
-            );
+            // Send message to RocketMQ
+            rocketMQTemplate.convertAndSend(betSettlementsTopic, betSettlement);
             
-            SendResult result = producer.send(message);
-            logger.info("RocketMQ message sent successfully: {}", result);
+            log.info("Successfully published bet settlement to RocketMQ for bet ID: {}", betSettlement.getBetId());
             
-            producer.shutdown();
         } catch (Exception e) {
-            logger.error("Failed to send RocketMQ message", e);
+            log.error("Failed to publish bet settlement to RocketMQ for bet ID: {}", betSettlement.getBetId(), e);
+            // In production, you might want to retry or send to a dead letter queue
+            throw new RuntimeException("Failed to publish bet settlement", e);
         }
-        */
-        
-        // For now, fall back to mock
-        log.info("RocketMQ not configured, falling back to mock implementation");
-        mockPublishBetSettlement(betSettlement);
     }
     
     /**
-     * Process bet settlement (simulates RocketMQ consumer)
+     * Process bet settlement (handles settlement logic)
      */
     public void processBetSettlement(BetSettlement betSettlement) {
-        log.info("MOCK RocketMQ Consumer - Processing bet settlement: {}", betSettlement);
+        log.info("Processing bet settlement: {}", betSettlement);
         
         switch (betSettlement.getSettlementStatus()) {
             case WON:
@@ -122,5 +112,36 @@ public class BetSettlementService {
         }
         
         log.info("Successfully processed bet settlement for bet ID: {}", betSettlement.getBetId());
+    }
+    
+    /**
+     * RocketMQ Consumer for bet settlements
+     * This is a separate component that listens to the bet-settlements topic
+     */
+    @Service
+    @RocketMQMessageListener(
+        topic = "${app.rocketmq.topics.bet-settlements}",
+        consumerGroup = "${rocketmq.consumer.group}"
+    )
+    @Slf4j
+    public static class BetSettlementConsumer implements RocketMQListener<BetSettlement> {
+        
+        private final BetSettlementService betSettlementService;
+        
+        public BetSettlementConsumer(BetSettlementService betSettlementService) {
+            this.betSettlementService = betSettlementService;
+        }
+        
+        @Override
+        public void onMessage(BetSettlement betSettlement) {
+            log.info("RocketMQ Consumer - Received bet settlement: {}", betSettlement);
+            
+            try {
+                betSettlementService.processBetSettlement(betSettlement);
+            } catch (Exception e) {
+                log.error("Error processing bet settlement from RocketMQ: {}", betSettlement, e);
+                // In production, you might want to implement retry logic or dead letter queue
+            }
+        }
     }
 }

@@ -42,7 +42,7 @@ services:
 
   # RocketMQ Name Server
   rocketmq-namesrv:
-    image: apache/rocketmq:5.1.4
+    image: apache/rocketmq:4.9.4
     platform: linux/amd64  # Explicit platform for consistency
     container_name: sports-betting-rocketmq-namesrv
     ports:
@@ -55,7 +55,7 @@ services:
 
   # RocketMQ Broker
   rocketmq-broker:
-    image: apache/rocketmq:5.1.4
+    image: apache/rocketmq:4.9.4
     platform: linux/amd64  # Explicit platform for consistency
     container_name: sports-betting-rocketmq-broker
     ports:
@@ -63,11 +63,13 @@ services:
       - "10911:10911"
     depends_on:
       - rocketmq-namesrv
-    command: ["sh", "mqbroker", "-n", "rocketmq-namesrv:9876", "-c", "/opt/rocketmq-5.1.4/conf/broker.conf"]
     environment:
-      JAVA_OPT_EXT: "-Duser.home=/opt -Xms512m -Xmx512m"
+      NAMESRV_ADDR: "rocketmq-namesrv:9876"
+      JAVA_OPT_EXT: "-Xms512m -Xmx512m"
+    command: sh mqbroker -n rocketmq-namesrv:9876 autoCreateTopicEnable=true
     volumes:
-      - ./docker/broker.conf:/opt/rocketmq-5.1.4/conf/broker.conf
+      - rocketmq-broker-store:/home/rocketmq/store
+      - rocketmq-broker-logs:/home/rocketmq/logs
     networks:
       - sports-betting-network
 
@@ -83,8 +85,6 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
-      rocketmq-namesrv:
-        condition: service_started
     ports:
       - "8080:8080"
     environment:
@@ -115,3 +115,7 @@ services:
 networks:
   sports-betting-network:
     driver: bridge
+
+volumes:
+  rocketmq-broker-store:
+  rocketmq-broker-logs:

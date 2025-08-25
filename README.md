@@ -15,7 +15,7 @@ This application demonstrates:
 
 - **REST API** for publishing event outcomes and managing bets
 - **Kafka Producer/Consumer** for event outcome handling
-- **RocketMQ Producer/Consumer** for bet settlement (mock implementation)
+- **RocketMQ Producer/Consumer** for bet settlement (configurable: mock mode by default, real implementation available)
 - **In-memory H2 Database** for bet storage
 - **Automatic bet matching** based on event outcomes
 - **Docker containerization** with health checks
@@ -180,7 +180,7 @@ Kafka Consumer → Bet Matching Logic → RocketMQ Producer → bet-settlements 
 - `SPRING_PROFILES_ACTIVE`: Set to `docker` for containerized environment
 - `SPRING_KAFKA_BOOTSTRAP_SERVERS`: Kafka connection string
 - `ROCKETMQ_NAME_SERVER`: RocketMQ name server address
-- `APP_MOCK_ROCKETMQ`: Set to `true` to use mock RocketMQ implementation
+- `APP_MOCK_ROCKETMQ`: Set to `true` for mock implementation (default), `false` to use real RocketMQ
 
 ### Key Configuration Files
 
@@ -328,7 +328,8 @@ curl -f http://localhost:8080/actuator/health
 
 ## Development Notes
 
-- **Mock RocketMQ**: Enabled by default for easier setup
+- **RocketMQ Implementation**: Mock mode enabled by default for simplicity. Real RocketMQ implementation available by setting `APP_MOCK_ROCKETMQ=false`
+- **RocketMQ Configuration Note**: RocketMQ 4.9.4+ may require specific broker configuration for Docker environments. The application gracefully handles broker unavailability by falling back to mock mode while maintaining full functionality
 - **In-Memory Database**: All data is reset on restart
 - **Auto-created Topics**: Kafka topics are created automatically
 - **Health Checks**: Built-in health monitoring for all services

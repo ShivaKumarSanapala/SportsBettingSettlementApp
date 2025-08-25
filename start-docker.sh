@@ -5,6 +5,15 @@
 echo "🏈 Sports Betting Settlement Service - Docker Setup"
 echo "=================================================="
 
+# Check RocketMQ mode
+MOCK_ROCKETMQ=$(grep "APP_MOCK_ROCKETMQ" docker-compose.yml | cut -d'"' -f2)
+if [ "$MOCK_ROCKETMQ" = "true" ]; then
+    echo "🔧 RocketMQ Mode: Mock Implementation"
+else
+    echo "🚀 RocketMQ Mode: Real RocketMQ Integration"
+fi
+echo
+
 # Function to check if Docker is running
 check_docker() {
     if ! docker info > /dev/null 2>&1; then

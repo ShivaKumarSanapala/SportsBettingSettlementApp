@@ -50,6 +50,11 @@ rocketmq:
   name-server: ${ROCKETMQ_NAME_SERVER:rocketmq-namesrv:9876}
   producer:
     group: sports-betting-producer-group
+    send-message-timeout: 30000
+    compress-message-body-threshold: 4096
+    max-message-size: 4194304
+    retry-times-when-send-failed: 2
+    retry-times-when-send-async-failed: 2
   consumer:
     group: sports-betting-consumer-group
 

@@ -60,7 +60,7 @@ app:
     topics:
       bet-settlements: bet-settlements
   mock:
-    rocketmq: true  # Set to true to mock RocketMQ if setup is complex
+    rocketmq: true  # Set to true to mock RocketMQ if setup is complex, false to use real RocketMQ
 
 # Logging Configuration
 logging:
