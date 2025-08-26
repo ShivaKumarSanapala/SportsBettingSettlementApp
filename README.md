@@ -27,6 +27,11 @@ This application demonstrates:
 
 ### Quick Start (Recommended)
 ```bash
+Make script executable (first time only)
+chmod +x run-cron.sh
+```
+
+```bash
 # Option 1: Docker with full setup
 ./start-docker.sh
 
